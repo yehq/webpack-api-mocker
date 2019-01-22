@@ -4,7 +4,7 @@ const pathToRegexp = require('path-to-regexp');
 const PATH = require('path');
 const parse = require('url').parse;
 const chokidar = require('chokidar');
-require('colors-cli/toxic');
+const color = require('colors-cli/safe');
 
 const proxyHTTP = httpProxy.createProxyServer({});
 let proxy = {};
@@ -57,9 +57,9 @@ module.exports = function (app, watchFile, conf = {}) {
 
         proxy = getProxy();
 
-        console.log(`${` Done: `.green_b.black} Hot Mocker ${path.replace(process.cwd(), '').green} file replacement success!`);
+        console.log(`${color.green_b.black(' Done: ')} Hot Mocker ${color.green(path.replace(process.cwd(), ''))} file replacement success!`);
       } catch (ex) {
-        console.error(`${` Failed: `.red_b.black} Hot Mocker ${path.replace(process.cwd(), '').red} file replacement failed!!`);
+        console.error(`${color.red_b.black(' Failed: ')} Hot Mocker ${color.red(path.replace(process.cwd(), ''))} file replacement failed!!`);
       }
     }
   })
@@ -137,8 +137,14 @@ module.exports = function (app, watchFile, conf = {}) {
     }
   });
 
-  // 释放老模块的资源
+  // The old module's resources to be released.
   function cleanCache(modulePath) {
+    // The entry file does not have a .js suffix, 
+    // causing the module's resources not to be released.
+    // https://github.com/jaywcjlove/webpack-api-mocker/issues/30
+    try {
+      modulePath = require.resolve(modulePath);
+    } catch (e) {}
     var module = require.cache[modulePath];
     if (!module) return;
     // remove reference in module.parent

@@ -1,8 +1,6 @@
 const delay = require('mocker-api/utils/delay');
 const user = require('./user.mock');
 
-console.log('user:', user)
-
 // 是否禁用代理
 const noProxy = process.env.NO_PROXY === 'true';
 
